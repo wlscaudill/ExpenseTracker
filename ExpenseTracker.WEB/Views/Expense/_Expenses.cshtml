@@ -1,0 +1,104 @@
+﻿@model List<ExpenseTracker.Core.Expense.ExpenseEntry>
+@{
+    var loggedInUrl = Url.Action("_LoggedInDisplay", "Account");
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // refresh the pane because login will hit this...
+        loadDivWithBlock('loggedInDiv', '@loggedInUrl');
+    });
+
+    setupDataTable();
+
+    function setupDataTable() {
+        $('#expensesDataTable').dataTable(
+            {
+                aLengthMenu: [[10, 25, 50, -1], [10, 25, 50, "All"]],
+                iDisplayLength: 10,
+                aaSorting: [[1, "desc"], [2, "desc"]],
+                bFilter: true,
+                bSortCellsTop: true,
+                oLanguage: {
+                    sSearch: "Search all columns:",
+                    sEmptyTable: "No data",
+                    sZeroRecords: "No results for search",
+                },
+                aoColumnDefs: [
+                    {
+                        bSortable: false, // make edit/delete not sortable
+                        aTargets: [0]
+                    }
+                ]
+            }).columnFilter({
+                sPlaceHolder: "head:before",
+                aoColumns: [
+                    null,
+                    { type: "text" },
+                    { type: "text" },
+                    { type: "text" },
+                    { type: "text" },
+                    { type: "text" }]
+            });
+    }
+</script>
+
+<span>
+    @Html.CreateExpenseLink()
+    @Html.ReportExpenseLink()
+</span>
+
+<table id="expensesDataTable" class="dataTable">
+    <thead>
+        <tr>
+            <th style="white-space: nowrap; width: 60px;">Edit|Delete</th>
+            <th>Date</th>
+            <th>Time</th>
+            <th>Description</th>
+            <th>Amount</th>
+            <th>Comment</th>
+        </tr>
+        <tr><!-- This is a hack to get searching out of headers to allow indepedant of sorting-->
+            <th style="white-space: nowrap; width: 60px;"></th>
+            <th>Search Date</th>
+            <th>Search Time</th>
+            <th>Search Description</th>
+            <th>Search Amount</th>
+            <th>Search Comment</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var expense in Model)
+        {
+            <tr>
+                <td>
+                    @Html.EditExpenseLink(expense.ID)&nbsp;@Html.DeleteExpenseLink(expense.ID, expense.Description)
+                </td>
+                <td>
+                    <div class="rightAligned" style="padding-right: 10px;">
+                        @Html.DateOnlySortable(expense.DateAndTime)
+                    </div>
+                </td>
+                <td>
+                    <div class="rightAligned" style="padding-right: 10px;">
+                        @Html.TimeOnly(expense.DateAndTime)
+                    </div>
+                </td>
+                <td>
+                    @Html.EllipsizeText(expense.Description, 100)
+                </td>
+                <td>
+                    <div class="rightAligned" style="padding-right: 10px;">
+                        @Html.MoneyFromDouble(expense.Amount)
+                    </div>
+                </td>
+                <td>
+                    @Html.EllipsizeText(expense.Comment, 100)
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<br />
+<br />
+<br />

@@ -1,0 +1,104 @@
+﻿@model ExpenseTracker.WEB.Models.ReportViewModel
+@{
+    var startDate = Model.FilterStartDate ?? Model.WeeklyReport.MinDate;
+    var endDate = Model.FilterEndDate ?? Model.WeeklyReport.MaxDate;
+}
+<script type="text/javascript">
+    setupDataTable();
+
+    function setupDataTable() {
+        $('#reportDataTable').dataTable(
+            {
+                "bJQueryUI": false,
+                "bFilter": false,
+                "aaSorting": [],
+                "aLengthMenu": [],
+                "bPaginate": false,
+                "bSort": false,
+                "bInfo": false,
+                "iDisplayLength": -1,
+                "oLanguage": {
+                    "sEmptyTable": "No data",
+                },
+            }
+        );
+    }
+</script>
+<div style="text-align: center">
+    @if (Model.FilterEndDate < Model.FilterStartDate)
+    {
+        <h3>Please choose a start date that is before the end date to filter on.</h3>
+    }
+    else if (Model.WeeklyReport.MinDate == DateTime.MinValue || Model.WeeklyReport.MaxDate == DateTime.MaxValue)
+    {
+        <h3>Weekly Breakdown Report - No Data</h3>
+    }
+    else
+    {
+        <h3>Weekly Breakdown Report - '@Model.Username' - @startDate.ToString(Constants.STANDARD_DATE_TOSTRING_PATTERN) to @endDate.ToString(Constants.STANDARD_DATE_TOSTRING_PATTERN)</h3>
+        <table id="reportDataTable" class="reportTable">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var week in Model.WeeklyReport.Weeks)
+                {
+                    <tr>
+                        <td class="tableCellAsHeader">Date</td>
+                        <td class="tableCellAsHeader">Time</td>
+                        <td class="tableCellAsHeader">Description</td>
+                        <td class="tableCellAsHeader">Amount</td>
+                        <td class="tableCellAsHeader">Comment</td>
+                    </tr>
+
+                    foreach (var expense in week.Expenses)
+                    {
+                    <tr>
+                        <td>
+                            @Html.DateOnly(expense.DateAndTime)
+                        </td>
+                        <td>
+                            @Html.TimeOnly(expense.DateAndTime)
+                        </td>
+                        <td>
+                            @expense.Description
+                        </td>
+                        <td>
+                            @Html.MoneyFromDouble(expense.Amount)
+                        </td>
+                        <td>
+                            @expense.Comment
+                        </td>
+                    </tr>
+                    }
+                    <tr>
+                        <td></td>
+                        <td class="tableCellAsHeader">Total
+                        </td>
+                        <td>
+                            @Html.MoneyFromDouble(week.TotalAmount)
+                        </td>
+                        <td class="tableCellAsHeader">Average/Day
+                        </td>
+                        <td>
+                            @Html.MoneyFromDouble(week.AveragePerDay)
+                        </td>
+                    </tr>
+                    <tr class="spacerRow">
+                        <td class="spacerCell"></td>
+                        <td class="spacerCell"></td>
+                        <td class="spacerCell"></td>
+                        <td class="spacerCell"></td>
+                        <td class="spacerCell"></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>

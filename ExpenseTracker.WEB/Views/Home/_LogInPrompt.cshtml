@@ -1,0 +1,14 @@
+﻿@{
+    var modalUrl = Url.Action("_LoginOrRegister", "Account");
+    var loggedInUrl = Url.Action("_LoggedInDisplay", "Account");
+    var finishedUrl = Url.Action("_Expenses", "Expense");
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        // refresh the pane because login will hit this...
+        loadDivWithBlock('loggedInDiv', '@loggedInUrl');
+
+        loginShowModal('Login or Register', '@modalUrl', '@finishedUrl', true, 500, 640, 500, 640);
+    });
+</script>

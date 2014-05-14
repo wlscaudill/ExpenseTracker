@@ -1,0 +1,119 @@
+﻿<script type="text/javascript">
+     $(document).ready(function() {
+         $('.focusMe').attr("autofocus", "");
+     });
+     
+     function OnBeginReg() {
+     }
+
+     function OnSuccessReg(response) {
+         var successMessage = '@Constants.SUCCESS_MESSAGE_PREFIX';
+
+         if (response.toString().indexOf(successMessage) != -1) {
+             $('#loginModal').dialog('close');
+         } else {
+             $("#resultsReg").show();
+             $("#resultsReg").html(response);
+         }
+     }
+
+     function OnFailureReg() {
+         $("#resultsReg").show();
+         $("#resultsReg").html("Failed to register. Please try again later.");
+     }
+
+     function OnBeginLog() {
+     }
+
+     function OnSuccessLog(response) {
+         var successMessage = '@Constants.SUCCESS_MESSAGE_PREFIX';
+         if (response.toString().indexOf(successMessage) != -1) {
+             $('#loginModal').dialog('close');
+         } else {
+             $("#resultsLog").show();
+             $("#resultsLog").html(response);
+         }
+     }
+    
+     function OnFailureLog() {
+         $("#resultsLog").show();
+         $("#resultsLog").html("Failed to log in. Please try again later.");
+     }
+ </script>
+
+
+
+<div>
+    <fieldset>
+        <legend>Register</legend>
+        <br/>
+        @using (Ajax.BeginForm("Register", "Account", new AjaxOptions { HttpMethod = "Post", OnBegin = "OnBeginReg", OnSuccess = "OnSuccessReg", OnFailure = "OnFailureReg" }))
+        {
+            <label id="resultsReg" style="color:darkred;font-weight: bold"></label>
+            <div class="row">
+                <div class="editor-label">
+                    @Html.Label("Email")
+                </div>
+                <div class="editor-field">
+                    @Html.TextBox("Email")
+                </div>
+            </div>
+            <div class="row">
+                <div class="editor-label">
+                    @Html.Label("Username")
+                </div>
+                <div class="editor-field">
+                    @Html.TextBox("Username")
+                </div>
+            </div>
+            <div class="row">
+                <div class="editor-label">
+                    @Html.Label("Password")
+                </div>
+                <div class="editor-field">
+                    @Html.Password("Password")
+                </div>
+            </div>
+            <div class="row">
+                <div class="editor-label">
+                    @Html.Label("Confirm Password")
+                </div>
+                <div class="editor-field">
+                    @Html.Password("ConfirmPassword")
+                </div>
+            </div>
+            <br />
+            <p>
+                <input type="submit" value="Register" />
+            </p>
+        }
+    </fieldset>
+    <fieldset>
+        <legend>Login</legend>
+        <br/>
+        @using (Ajax.BeginForm("Login", "Account", new AjaxOptions { HttpMethod = "Post", OnBegin = "OnBeginLog", OnSuccess = "OnSuccessLog", OnFailure = "OnFailureLog" }))
+        {
+            <label id="resultsLog" style="color:darkred;font-weight: bold"></label>
+            <div class="row">
+                <div class="editor-label">
+                    @Html.Label("Username")
+                </div>
+                <div class="editor-field">
+                    @Html.TextBox("username", string.Empty, htmlAttributes: new { @class = "focusMe" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="editor-label">
+                    @Html.Label("Password")
+                </div>
+                <div class="editor-field">
+                    @Html.Password("password")
+                </div>
+            </div>
+            <br />
+            <p>
+                <input type="submit" value="Login" />
+            </p>
+        }
+    </fieldset>
+</div>

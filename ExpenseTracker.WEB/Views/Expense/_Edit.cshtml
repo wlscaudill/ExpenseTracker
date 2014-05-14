@@ -1,0 +1,116 @@
+﻿@model ExpenseTracker.WEB.Models.ExpenseViewModel
+<script type="text/javascript">
+    setupInputFields();
+    
+    function setupInputFields() {
+        $("#datePicker").datepicker();
+        $("#timePicker").timeEntry({
+            show24Hours: true,
+            spinnerImage: null,
+        }).timepicker({
+            hour: 0,
+            minute: 0,
+        });
+        $("#amount").autoNumeric('init', { aSign: '@Constants.CURRENCY_SIGN' });
+    }
+
+    function OnBegin() {
+    }
+
+    function OnSuccess(response) {
+        if (response.toString().indexOf('@(Constants.SUCCESS_MESSAGE_PREFIX)') != -1) {
+            $("#results").css("color", "darkgreen");
+            
+            $("#submit").prop("disabled", true);
+            $("#datePicker").prop("disabled", true);
+            $("#timePicker").prop("disabled", true);
+            $("#description").prop("disabled", true);
+            $("#amount").prop("disabled", true);
+            $("#comment").prop("disabled", true);
+            
+            $("#close").prop("value", "Close");
+            $("#close").focus();
+        } else {
+            $("#results").css("color", "darkred");
+        }
+
+        $("#results").html(response);
+        $("#results").show();
+    }
+
+    function OnFailure() {
+        $("#results").show();
+        $("#results").css("color", "darkred");
+        $("#results").html("Failed to save. Please try again later.");
+    }
+</script>
+
+
+
+<div>
+    <fieldset>
+        <legend>Expense Details</legend>
+        <br/>
+        @{
+            var postAction = Model.IsAdd ? "_Add" : "_Edit";
+            var username = Model.IsAdd ? User.Identity.Name : Model.Expense.Username; // in case we allow non user edits; it doesn't overwrite
+            var expenseId = Model.IsAdd ? 0 : Model.Expense.ID;
+        }
+
+        @using (Ajax.BeginForm(postAction, "Expense", new AjaxOptions { HttpMethod = "Post", OnBegin = "OnBegin", OnSuccess = "OnSuccess", OnFailure = "OnFailure" }))
+        {
+            <input type="text" style="width: 0; height: 0; top: -100px; position: absolute;"/> <!-- this is a hidden input to prevent datepicker from getting focus on open -->
+            <label id="results" style="font-weight: bold"></label>
+            <input type="hidden" name="ID" value="@expenseId"/>
+            <input type="hidden" name="Username" value="@username"/>
+            <div class="row">
+                <div class="editor-label">
+                    @Html.Label("Date")
+                </div>
+                <div class="editor-field">
+                    @Html.TextBox("Date", Model.Expense == null ? string.Empty : Html.DateOnly(Model.Expense.DateAndTime), htmlAttributes: new { id = "datePicker" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="editor-label">
+                    @Html.Label("Time")
+                </div>
+                <div class="editor-field">
+                    @Html.TextBox("Time", Model.Expense == null ? string.Empty : Html.TimeOnly(Model.Expense.DateAndTime), htmlAttributes: new { id = "timePicker" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="editor-label">
+                    @Html.Label("Description")
+                </div>
+                <div class="editor-field">
+                    @Html.TextArea("Description", Model.Expense == null ? string.Empty : Model.Expense.Description, htmlAttributes: new { id = "description", cols = "23", style="resize: none;", })
+                </div>
+            </div>
+            <div class="row">
+                <div class="editor-label">
+                    @Html.Label("Amount")
+                </div>
+                <div class="editor-field">
+                    @Html.TextBox("AmountString", Model.Expense == null ? string.Empty : Html.MoneyFromDouble(Model.Expense.Amount), htmlAttributes: new { id = "amount" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="editor-label">
+                    @Html.Label("Comment")
+                </div>
+                <div class="editor-field">
+                    @Html.TextArea("Comment", Model.Expense == null ? string.Empty : Model.Expense.Comment, htmlAttributes: new { id = "comment", cols = "23", style="resize: none;",  })
+                </div>
+            </div>
+            <br />
+            <p>
+                <span>
+                    <input id="submit" type="submit" value="Save" class="submitButton"/>
+                    @*editModal is defined in showModal.js*@
+                    <input id="close" type="button" value="Cancel" onclick="$('#editModal').dialog('close');" class="closeButton" /> 
+                </span>
+            </p>
+        }
+    </fieldset>
+</div>

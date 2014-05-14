@@ -1,0 +1,55 @@
+﻿@model ExpenseTracker.WEB.Models.ReportViewModel
+@{
+    var printUrl = Url.Action("PrintReport", "Expense");
+    var contentsUrl = Url.Action("_ReportContents", "Expense");
+}
+<script type="text/javascript">
+    setupDatePickers();
+    reloadContents();
+
+    function setupDatePickers() {
+        $("#startDatePicker").datepicker({
+            beforeShowDay: function (date) {
+                // only allow start on monday
+                return [date.getDay() == 0, ''];
+            }
+        });
+
+        $("#endDatePicker").datepicker({
+            beforeShowDay: function (date) {
+                // only allow end on saturday
+                return [date.getDay() == 6, ''];
+            }
+        });
+    }
+
+    function reloadContents() {
+        var start = $('#startDatePicker').val();
+        var end = $('#endDatePicker').val();
+        loadDivWithBlock('reportContents', '@contentsUrl?startDate=' + start + '&endDate=' + end);
+    }
+
+    function openPrint() {
+        var start = $('#startDatePicker').val();
+        var end = $('#endDatePicker').val();
+        window.open('@printUrl?startDate=' + start + '&endDate=' + end, '_blank');
+    }
+</script>
+
+<input type="text" style="width: 0; height: 0; top: -100px; position: absolute;"/> <!-- this is a hidden input to prevent datepicker from getting focus on open -->
+
+<div>
+    @Html.PrintPageLink("openPrint()", "Open Print View in New Window")
+</div>
+
+<div id="dateFilterGroup" style="text-align: center">
+    <span>
+        @Html.Label("Start Date", htmlAttributes: new { style = "font-weight: bold;" })
+        @Html.TextBox("startDate", string.Empty, htmlAttributes: new { id = "startDatePicker" })
+        @Html.Label("End Date", htmlAttributes: new { style = "font-weight: bold;" })
+        @Html.TextBox("endDate", string.Empty, htmlAttributes: new { id = "endDatePicker" })
+        <input type="button" value="Filter by Date Range" onclick="reloadContents();" />
+    </span>
+</div>
+
+<div id="reportContents"></div>

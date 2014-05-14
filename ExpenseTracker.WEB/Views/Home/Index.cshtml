@@ -1,0 +1,21 @@
+﻿@{
+    ViewBag.Title = "Expense Tracker";
+    var promptUrl = Url.Action("_LoginPrompt", "Home");
+    var startUrl = Url.Action("_Expenses", "Expense");
+}
+@if (!Request.IsAuthenticated)
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            loadDivWithBlock('mainDiv', '@promptUrl');
+        });
+    </script>
+}
+else
+{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            loadDivWithBlock('mainDiv', '@startUrl');
+        });
+    </script>
+}

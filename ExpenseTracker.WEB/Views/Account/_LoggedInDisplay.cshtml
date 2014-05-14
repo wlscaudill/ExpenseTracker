@@ -1,0 +1,9 @@
+﻿@if (User.Identity.IsAuthenticated)
+{
+    <div style="height: 40px; border: solid 2px darkgrey; margin: 5px;">
+        <div class="loggedInDisplayLogOff">
+            @Html.LogOffLink("loadDivWithBlock('mainDiv', '" + Url.Action("LogOff", "Account") + "');")
+        </div>
+        <div class="loggedInDisplayText"><b>@User.Identity.Name</b> is logged in</div>
+    </div>
+}
